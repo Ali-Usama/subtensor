@@ -32,4 +32,8 @@ sp_api::decl_runtime_apis! {
     pub trait SubnetRegistrationRuntimeApi {
         fn get_network_registration_cost() -> u64;
     }
+
+    pub trait EpochRuntimeApi {
+        fn subtensor_epoch( netuid: u16, return_incentive: Option<bool> ) -> Vec<u8>;
+    }
 }

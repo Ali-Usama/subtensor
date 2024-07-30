@@ -9,6 +9,8 @@ impl<T: Config> Pallet<T> {
         SubnetworkN::<T>::get(netuid)
     }
 
+
+
     /// Replace the neuron under this uid.
     pub fn replace_neuron(
         netuid: u16,

@@ -378,7 +378,7 @@ impl CanVote<AccountId> for CanVoteToTriumvirate {
     }
 }
 
-use pallet_subtensor::{CollectiveInterface, MemberManagement};
+use pallet_subtensor::{CollectiveInterface, EpochResult, MemberManagement};
 pub struct ManageSenateMembers;
 impl MemberManagement<AccountId> for ManageSenateMembers {
     fn add_member(account: &AccountId) -> DispatchResultWithPostInfo {
@@ -1577,6 +1577,17 @@ impl_runtime_apis! {
     impl subtensor_custom_rpc_runtime_api::SubnetRegistrationRuntimeApi<Block> for Runtime {
         fn get_network_registration_cost() -> u64 {
             SubtensorModule::get_network_lock_cost()
+        }
+    }
+
+    impl subtensor_custom_rpc_runtime_api::EpochRuntimeApi<Block> for Runtime {
+        fn subtensor_epoch(netuid: u16, return_incentive: Option<bool>) -> Vec<u8> {
+            let result = SubtensorModule::epoch(netuid, return_incentive);
+            log::warn!("Epoch Result: {:?}", result);
+            match result {
+            EpochResult::Incentive(incentive) => incentive.encode(),
+            EpochResult::Emission(tuple) => tuple.encode(),
+            }
         }
     }
 }

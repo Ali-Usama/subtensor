@@ -77,6 +77,7 @@ pub mod pallet {
     use alloc::boxed::Box;
     #[cfg(feature = "std")]
     use sp_std::prelude::Box;
+    use substrate_fixed::types::I32F32;
 
     /// Tracks version for migrations. Should be monotonic with respect to the
     /// order of migrations. (i.e. always increasing)
@@ -238,6 +239,15 @@ pub mod pallet {
         /// Initial target stakes per interval issuance.
         #[pallet::constant]
         type InitialTargetStakesPerInterval: Get<u64>;
+    }
+
+    /// Custom Return type for the epoch method
+    #[derive(Encode, Decode, Debug)]
+    pub enum EpochResult<T: Config> {
+        /// Return incentive when `return_incentive` is true
+        Incentive(Vec<I32F32>),
+        /// Return the emission tuple otherwise
+        Emission(Vec<(T::AccountId, u64, u64)>),
     }
 
     /// Alias for the account ID.

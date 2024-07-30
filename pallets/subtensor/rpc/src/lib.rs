@@ -15,9 +15,18 @@ pub use subtensor_custom_rpc_runtime_api::{
     DelegateInfoRuntimeApi, NeuronInfoRuntimeApi, SubnetInfoRuntimeApi,
     SubnetRegistrationRuntimeApi,
 };
+use subtensor_custom_rpc_runtime_api::EpochRuntimeApi;
 
 #[rpc(client, server)]
 pub trait SubtensorCustomApi<BlockHash> {
+
+    #[method(name = "subtensor_epoch")]
+    fn subtensor_epoch(
+        &self,
+        netuid: u16,
+        return_incentive: Option<bool>,
+        at: Option<BlockHash>
+    ) -> RpcResult<Vec<u8>>;
     #[method(name = "delegateInfo_getDelegates")]
     fn get_delegates(&self, at: Option<BlockHash>) -> RpcResult<Vec<u8>>;
     #[method(name = "delegateInfo_getDelegate")]
@@ -98,8 +107,21 @@ where
     C::Api: DelegateInfoRuntimeApi<Block>,
     C::Api: NeuronInfoRuntimeApi<Block>,
     C::Api: SubnetInfoRuntimeApi<Block>,
-    C::Api: SubnetRegistrationRuntimeApi<Block>,
+    C::Api: SubnetRegistrationRuntimeApi<Block>
+            + EpochRuntimeApi<Block>,
 {
+    fn subtensor_epoch(
+        &self,
+        netuid: u16,
+        return_incentive: Option<bool>,
+        at: Option<<Block as BlockT>::Hash>,
+    ) -> RpcResult<Vec<u8>> {
+        let api = self.client.runtime_api();
+        let at = at.unwrap_or_else(|| self.client.info().best_hash);
+
+        api.subtensor_epoch(at, netuid, return_incentive)
+            .map_err(|e| Error::RuntimeError(format!("Unable to execute epoch: {:?}", e)).into())
+    }
     fn get_delegates(&self, at: Option<<Block as BlockT>::Hash>) -> RpcResult<Vec<u8>> {
         let api = self.client.runtime_api();
         let at = at.unwrap_or_else(|| self.client.info().best_hash);
@@ -195,6 +217,14 @@ where
             .map_err(|e| Error::RuntimeError(format!("Unable to get subnet info: {:?}", e)).into())
     }
 
+    fn get_subnets_info(&self, at: Option<<Block as BlockT>::Hash>) -> RpcResult<Vec<u8>> {
+        let api = self.client.runtime_api();
+        let at = at.unwrap_or_else(|| self.client.info().best_hash);
+
+        api.get_subnets_info(at)
+            .map_err(|e| Error::RuntimeError(format!("Unable to get subnets info: {:?}", e)).into())
+    }
+
     fn get_subnet_hyperparams(
         &self,
         netuid: u16,
@@ -205,14 +235,6 @@ where
 
         api.get_subnet_hyperparams(at, netuid)
             .map_err(|e| Error::RuntimeError(format!("Unable to get subnet info: {:?}", e)).into())
-    }
-
-    fn get_subnets_info(&self, at: Option<<Block as BlockT>::Hash>) -> RpcResult<Vec<u8>> {
-        let api = self.client.runtime_api();
-        let at = at.unwrap_or_else(|| self.client.info().best_hash);
-
-        api.get_subnets_info(at)
-            .map_err(|e| Error::RuntimeError(format!("Unable to get subnets info: {:?}", e)).into())
     }
 
     fn get_network_lock_cost(&self, at: Option<<Block as BlockT>::Hash>) -> RpcResult<u64> {
