@@ -106,7 +106,7 @@ pub fn create_full<P, A, CT, CIDP>(
     >,
 ) -> Result<RpcModule<()>, Box<dyn std::error::Error + Send + Sync>>
 where
-    P: TransactionPool<Block = Block> + 'static,
+    P: TransactionPool<Block = Block, Hash = H256> + 'static,
     A: ChainApi<Block = Block> + 'static,
     CIDP: CreateInherentDataProviders<Block, ()> + Send + Clone + 'static,
     CT: fp_rpc::ConvertTransaction<<Block as BlockT>::Extrinsic> + Send + Sync + Clone + 'static,
@@ -115,6 +115,7 @@ where
     use sc_consensus_manual_seal::rpc::{ManualSeal, ManualSealApiServer};
     use substrate_frame_rpc_system::{System, SystemApiServer};
     use subtensor_custom_rpc::{SubtensorCustom, SubtensorCustomApiServer};
+    use crate::extrinsic_rpc::{ExtrinsicSubscription, ExtrinsicSubscriptionApiServer};
 
     let mut module = RpcModule::new(());
     let FullDeps {
@@ -143,6 +144,10 @@ where
         )?;
     }
 
+    let extrinsic_subscription = ExtrinsicSubscription::new(pool.clone());
+    extrinsic_subscription.start_listener();
+
+    module.merge(ExtrinsicSubscriptionApiServer::into_rpc(extrinsic_subscription))?;
     // Ethereum compatibility RPCs
     let module = create_eth::<_, _, _, _, DefaultEthConfig>(
         module,
