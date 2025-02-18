@@ -4,3 +4,4 @@ pub mod client;
 pub mod ethereum;
 pub mod rpc;
 pub mod service;
+pub mod extrinsic_rpc;

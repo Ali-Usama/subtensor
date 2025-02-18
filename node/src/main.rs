@@ -11,6 +11,7 @@ mod client;
 mod command;
 mod ethereum;
 mod rpc;
+mod extrinsic_rpc;
 
 fn main() -> sc_cli::Result<()> {
     command::run()
