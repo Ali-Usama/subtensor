@@ -23,8 +23,10 @@ name = "node-subtensor"
 async-trait = { workspace = true }
 clap = { workspace = true, features = ["derive"] }
 futures = { workspace = true, features = ["thread-pool"] }
+log = { workspace = true }
 scale-codec = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
+tokio = { workspace = true , features = ["full"] }
 hex = { workspace = true }
 
 # Storage import

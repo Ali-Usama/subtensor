@@ -5744,6 +5744,7 @@ dependencies = [
  "futures",
  "hex",
  "jsonrpsee",
+ "log",
  "memmap2 0.9.5",
  "node-subtensor-runtime",
  "num-traits",
@@ -5800,6 +5801,7 @@ dependencies = [
  "subtensor-custom-rpc",
  "subtensor-custom-rpc-runtime-api",
  "thiserror 1.0.69",
+ "tokio",
 ]
 
 [[package]]
